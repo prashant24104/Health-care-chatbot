@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Medical Assistant</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="chat-container">
+
+    <div class="chat-header">
+        <div class="bot-avatar">🩺</div>
+        <div>
+            <h3>AI Medical Assistant</h3>
+            <span>Online • Ask your symptoms</span>
+        </div>
+    </div>
+
+    <div class="chat-body" id="chatBody"></div>
+
+    <div class="chat-footer">
+        <form id="messageArea">
+            <input type="text" id="text" placeholder="Describe your symptoms..." autocomplete="off" required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+</div>
+
+
+<script>
+$(document).ready(function(){
+
+$("#messageArea").on("submit", function(event){
+event.preventDefault();
+
+var rawText = $("#text").val();
+
+var userHtml = `
+<div class="message user">
+<div class="bubble">${rawText}</div>
+</div>
+`;
+
+$("#chatBody").append(userHtml);
+$("#text").val("");
+
+$("#chatBody").scrollTop($("#chatBody")[0].scrollHeight);
+
+var typing = `
+<div class="message bot typing">
+<div class="bubble">
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+`;
+
+$("#chatBody").append(typing);
+
+$.ajax({
+url:"/get",
+type:"POST",
+contentType:"application/json",
+data: JSON.stringify({message: rawText})
+}).done(function(data){
+
+$(".typing").remove();
+
+var botHtml = `
+<div class="message bot">
+<div class="bubble">${data.answer}</div>
+</div>
+`;
+
+$("#chatBody").append(botHtml);
+
+$("#chatBody").scrollTop($("#chatBody")[0].scrollHeight);
+
+});
+
+});
+
+});
+</script>
+
+</body>
+</html>
